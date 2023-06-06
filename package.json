@@ -9,12 +9,32 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.2",
+    "@mui/x-data-grid": "^6.5.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/node": "20.2.3",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
+    "axios": "^1.4.0",
+    "bcryptjs": "^2.4.3",
+    "jose": "^4.14.4",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.2.1",
     "next": "13.4.3",
+    "next-auth": "^4.22.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hook-form": "^7.44.3",
+    "react-slideshow-image": "^4.2.1",
+    "swr": "^2.1.5",
     "typescript": "5.0.4"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.3",
+    "@types/jsonwebtoken": "^9.0.2"
   }
 }

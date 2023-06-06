@@ -1,0 +1,9 @@
+/* Todo esto esta en la libreria de react-slideshow-image*/
+
+.ease-slide > div {
+    display: flex;
+    justify-content: center;
+    background-size: contain;
+    background-position: center;
+    height: 500px;
+}
