@@ -24,7 +24,11 @@ const SummaryPage = () => {
       }
     }, [ router ])
 
-    const { firstName, lastName, address, address2 = '', zip, city, country, phone } = shippingAddress!
+    if ( !shippingAddress ) {
+        return <></>;
+    }
+
+    const { firstName, lastName, address, address2 = '', zip, city, country, phone } = shippingAddress
 
   return (
     <ShopLayout title='Resumen de orden' pageDescription='Resumen de la orden del usuario'>

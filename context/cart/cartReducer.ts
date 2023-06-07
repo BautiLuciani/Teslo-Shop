@@ -28,6 +28,8 @@ export const cartReducer = (state: CartState, action: CartActionType): CartState
                 cart: action.payload
             }
 
+        /* Cuando dos funciones tienen el mismo procedimiento se puede escribir de la siguiente manera */
+        case 'Cart - Update Address':
         case 'Cart - LoadAddress from cookies':
             return {
                 ...state,
@@ -84,8 +86,6 @@ export const cartReducer = (state: CartState, action: CartActionType): CartState
                 }) */
             }
 
-        /* Cuando dos funciones tienen el mismo procedimiento se puede escribir de la siguiente manera */
-        case 'Cart - Update Address':
         case 'Cart - Update order summary':
             return {
                 ...state,

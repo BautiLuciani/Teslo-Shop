@@ -1,7 +1,7 @@
 /* Podemos usar el snippet 'react-context' creado por nosotros */
 import { ICartProduct } from '@/interface'
 import { createContext } from 'react'
-import { ShippingAddress } from './CartProvider'
+import { ShippingAddress } from './'
 
 interface ContextProps {
     isLoaded: boolean,

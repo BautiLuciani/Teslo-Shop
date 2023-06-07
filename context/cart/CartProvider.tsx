@@ -64,6 +64,23 @@ export const CartProvider: FC<Props> = ({ children }) => {
         }
     }, [])
 
+    useEffect(() => {
+        if(Cookies.get('firstName')){
+            const shippingAddress = {
+                firstName: Cookies.get('firstName') || '',
+                lastName: Cookies.get('lastName') || '',
+                address: Cookies.get('address') || '',
+                address2: Cookies.get('address2') || '',
+                zip: Cookies.get('zip') || '',
+                city: Cookies.get('city') || '',
+                country: Cookies.get('country') || '',
+                phone: Cookies.get('phone') || ''
+            }
+    
+            dispatch({type: 'Cart - LoadAddress from cookies', payload: shippingAddress})
+        }
+    }, [])
+
     /* Usamos este useEffect para almacenar el carrito en las cookies 
     Este useEffect se va a ejecutar cada vez que haya un cambio en el carrito */
     useEffect(() => {
@@ -106,23 +123,6 @@ export const CartProvider: FC<Props> = ({ children }) => {
         dispatch({ type: 'Cart - Update order summary', payload: orderSummary })
 
     }, [state.cart])
-
-    useEffect(() => {
-        if(Cookies.get('firstName') !== undefined){
-            const direccion: ShippingAddress = {
-                firstName: Cookies.get('firstName') || '',
-                lastName: Cookies.get('lastName') || '',
-                address: Cookies.get('address') || '',
-                address2: Cookies.get('address2') || '',
-                zip: Cookies.get('zip') || '',
-                city: Cookies.get('city') || '',
-                country: Cookies.get('country') || '',
-                phone: Cookies.get('phone') || ''
-            }
-    
-            dispatch({type: 'Cart - LoadAddress from cookies', payload: direccion})
-        }
-    }, [])
 
     /* Creamos la funcion para agregar productos al carrito */
     const addProductCart = (product: ICartProduct) => {
