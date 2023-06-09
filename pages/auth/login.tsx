@@ -3,12 +3,14 @@ import { AuthContext } from '@/context';
 import { validations } from '@/utils';
 import { ErrorOutline } from '@mui/icons-material';
 import { Box, Button, Chip, Divider, Grid, Link, TextField, Typography } from '@mui/material'
-import { getProviders, getSession, signIn } from 'next-auth/react';
+import { getProviders, signIn } from 'next-auth/react';
 import NextLink from 'next/link'
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next'
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 type FormData = {
     email: string,
@@ -186,16 +188,19 @@ const LoginPage = () => {
 }
 
 /* Creamos el SSR para que si el usuario ya esta loggeado no pueda entrar mas a esta pagina */
-export const getServerSideProps: GetServerSideProps = async ({req, query}) => {
+export const getServerSideProps: GetServerSideProps = async ({req, query, res}) => {
     
     /* Verificamos si hay una session, es decir si esta loggeado */
-    const session = await getSession({req})
+    const session = await getServerSession(req, res, authOptions)
+
+    /* session nos devuelve un [object Object] por eso lo trabajamos de la siguiente manera y extraemos user */
+    const {user} = JSON.parse(JSON.stringify(session))
 
     /* Extraemos la query para redireccionar al usuario a la pagina que estaba anteriormente */
-    const { p = '' } = query
+    const { p = '/' } = query
 
     /* En caso de que haya una session vamos a redirijir al usuario */
-    if(session){
+    if(user){
         return {
             redirect: {
                 /* Pasamos p a string porque puede ser que nos devolviera un arreglo */

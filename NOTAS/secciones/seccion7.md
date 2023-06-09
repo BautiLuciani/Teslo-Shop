@@ -20,3 +20,4 @@
 17. Aplicamos un SSR a nuestra register page (pages/auth/register.ts)
 18. Hacemos que aparezcan los proveedores en el login page (pages/auth/login.ts)
 19. Creamos un middleware (middleware.ts)
+20. Definimos a variable de entorno NEXTAUTH_URL en el archivo '.env'

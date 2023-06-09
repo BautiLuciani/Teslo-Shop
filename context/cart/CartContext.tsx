@@ -1,7 +1,6 @@
 /* Podemos usar el snippet 'react-context' creado por nosotros */
-import { ICartProduct } from '@/interface'
+import { ICartProduct, IShippingAddress } from '@/interface'
 import { createContext } from 'react'
-import { ShippingAddress } from './'
 
 interface ContextProps {
     isLoaded: boolean,
@@ -11,13 +10,16 @@ interface ContextProps {
     tax: number,
     total: number,
 
-    shippingAddress?: ShippingAddress
+    shippingAddress?: IShippingAddress
     
     // Metodos
     addProductCart: (product: ICartProduct) => void,
     updateCartQuantity: (product: ICartProduct) => void,
     removeCartProduct: (product: ICartProduct) => void,
-    updateAddress: (address: ShippingAddress) => void
+    updateAddress: (address: IShippingAddress) => void
+
+    // Orders
+    createOrder: () => Promise<{ hasError: boolean, message: string}>
 }
 
 export const CartContext = createContext({} as ContextProps)

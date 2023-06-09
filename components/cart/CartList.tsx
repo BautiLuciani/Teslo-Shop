@@ -3,13 +3,14 @@ import NextLink from 'next/link'
 import { ItemCounter } from "../ui"
 import { FC, useContext } from "react"
 import { CartContext } from "@/context"
-import { ICartProduct } from "@/interface"
+import { ICartProduct, IOrderItem } from "@/interface"
 
 interface Props {
     editable?: boolean
+    products?: IOrderItem[]
 }
 
-const CartList: FC<Props> = ({ editable  }) => {
+const CartList: FC<Props> = ({ editable, products  }) => {
 
     /* Traemos el cart del CartContext para mapearlos y mostrarlos en pantalla */
     const { cart, updateCartQuantity, removeCartProduct } = useContext(CartContext)
@@ -20,10 +21,14 @@ const CartList: FC<Props> = ({ editable  }) => {
         updateCartQuantity(product)
     }
 
+    /* Si tenemos la variable 'product' significa que estamos en la pagina de revision de orden ya que es la unic que le pasa valores al product
+    Si estamos en otra pagina entonces lo que se va a mostrar es el cart, ya que el resto de las paginas no le mandan la propiedad product */
+    const showProducts = products ? products : cart
+
     return (
         <>
             {
-                cart.map(product => (
+                showProducts.map(product => (
                     /* Al key le sumamos el product.size ya que pueden haber mas de un elemento con el mismo slug, y el key debe ser unico */
                     <Grid container spacing={2} key={product.slug + product.size} sx={{ mb: 1 }}>
                         <Grid item xs={3}>
@@ -50,7 +55,7 @@ const CartList: FC<Props> = ({ editable  }) => {
                                     ? <ItemCounter 
                                         currentValue={product.quantity} 
                                         maxValue={9} 
-                                        onUpdateQuantity={(value) => updateQuantity(product, value)}                                         
+                                        onUpdateQuantity={(value) => updateQuantity(product as ICartProduct, value)}                                         
                                     />
                                     : <Typography variant='h6'>{product.quantity} {product.quantity > 1 ? 'productos' : 'producto'}</Typography>
                                 }
@@ -67,7 +72,8 @@ const CartList: FC<Props> = ({ editable  }) => {
                                         variant="text" 
                                         color="secondary"
                                         /* Ejecutamos la funcion para eliminar el producto */
-                                        onClick={()=> removeCartProduct(product)}
+                                        /* Lo tratamos como ICartProduct porque IOrderItem viene de [id].ts el cual envia editable en false, entonces no entra en esta accion */
+                                        onClick={()=> removeCartProduct(product as ICartProduct)}
                                     >
                                         Remover
                                     </Button>

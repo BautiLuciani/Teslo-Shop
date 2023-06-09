@@ -2,6 +2,11 @@ import { ShopLayout } from "@/components/layouts"
 import { Typography, Grid, Chip, Link } from '@mui/material';
 import {DataGrid, GridColDef, GridRenderCellParams} from '@mui/x-data-grid'
 import NextLink from 'next/link'
+import { GetServerSideProps, NextPage } from 'next'
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { dbOrders } from "@/database";
+import { IOrder } from "@/interface";
 
 /* Las columnas deben ser de tipo GridColDef[] */
 const columns: GridColDef[] = [
@@ -29,9 +34,9 @@ const columns: GridColDef[] = [
         sortable: false,
         renderCell: (params: GridRenderCellParams) => {
             return (
-                <NextLink href={`/orders/${params.row.id}`} passHref legacyBehavior>
+                <NextLink href={`/orders/${params.row.orderId}`} passHref legacyBehavior>
                     <Link underline="always">
-                        {params.row.orden}
+                        Ver Orden
                     </Link>
                 </NextLink>
             )
@@ -39,21 +44,24 @@ const columns: GridColDef[] = [
     }
 ]
 
-const rows = [
-    {id: 1, fullname: 'Bautista Luciani', paid: true, orden: 'Ver Orden'},
-    {id: 2, fullname: 'Matias Rejes', paid: true, orden: 'Ver Orden'},
-    {id: 3, fullname: 'Tobias Bullrich', paid: false, orden: 'Ver Orden'},
-    {id: 4, fullname: 'Joaquin Sanchez', paid: false, orden: 'Ver Orden'},
-    {id: 5, fullname: 'Marco Gotta', paid: true, orden: 'Ver Orden'},
-    {id: 6, fullname: 'Tomas Cafferata', paid: false, orden: 'Ver Orden'},
-]
+interface Props {
+    orders: IOrder[]
+}
 
-const HistoryPage = () => {
+const HistoryPage: NextPage<Props> = ({ orders }) => {
+
+    const rows = orders.map( (order, index) => ({
+        id: index + 1, 
+        fullname: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`, 
+        paid: order.isPaid, 
+        orderId: order._id
+    }))
+
   return (
     <ShopLayout title={"Historial de ordenes"} pageDescription={"Historial de ordenes del usuario"}>
         <Typography variant="h1" component='h1' sx={{mb: 2}}>Historial de ordenes</Typography>
 
-        <Grid container>
+        <Grid container className="fadeIn">
             <Grid item xs={12} sx={{height: 'calc(100vh - 150px)', width: '100%'}}>
                 {/* Utilizamos DataGrid de la libreria @mui/x-data-grid */}
                 <DataGrid
@@ -71,6 +79,34 @@ const HistoryPage = () => {
         </Grid>
     </ShopLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    
+    /* Obtenemos la session del usuario */
+    const session: any = await getServerSession(req, res, authOptions)
+    /* session nos devuelve un [object Object] por eso lo trabajamos de la siguiente manera y extraemos user */
+    const {user} = JSON.parse(JSON.stringify(session))
+
+    /* En caso de que no exista un usuario lo redirijimos a la pagina de login */
+    if(!user){
+        return {
+            redirect: {
+                destination: '/auth/login?p=/orders/history',
+                permanent: false
+            }
+        }
+    }
+
+    /* Obtenemos todas las ordenes que coincidan con el id del usuario
+    Para eso tuvimos que haber creado la funcion anteriormente en database */
+    const orders = await dbOrders.getOrderByUsers( user.id )
+
+    return {
+        props: {
+            orders
+        }
+    }
 }
 
 export default HistoryPage

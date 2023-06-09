@@ -1,8 +1,10 @@
 /* Podemos usar el snippet 'react-provider' creado por nosotros */
 import { FC, PropsWithChildren, useEffect, useReducer } from 'react'
 import { CartContext, cartReducer } from './'
-import { ICartProduct } from '@/interface'
+import { ICartProduct, IOrder, IShippingAddress } from '@/interface'
 import Cookies from 'js-cookie'
+import { tesloApi } from '@/api'
+import axios from 'axios'
 
 export interface CartState {
     isLoaded: boolean,
@@ -11,18 +13,7 @@ export interface CartState {
     subTotal: number,
     tax: number,
     total: number
-    shippingAddress?: ShippingAddress
-}
-
-export interface ShippingAddress {
-    firstName: string,
-    lastName: string,
-    address: string,
-    address2?: string,
-    zip: string,
-    city: string,
-    country: string,
-    phone: string
+    shippingAddress?: IShippingAddress
 }
 
 const Cart_INITIAL_STATE: CartState = {
@@ -172,7 +163,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
     }
 
     /* Creamos una funcion para actualizar la direccion del usuario */
-    const updateAddress = (address: ShippingAddress)=> {
+    const updateAddress = (address: IShippingAddress)=> {
         Cookies.set('firstName', address.firstName)
         Cookies.set('lastName', address.lastName)
         Cookies.set('address', address.address)
@@ -185,6 +176,60 @@ export const CartProvider: FC<Props> = ({ children }) => {
         dispatch({type: 'Cart - Update Address', payload: address})
     }
 
+    const createOrder = async(): Promise<{ hasError: boolean, message: string}> => {
+        
+        /* En caso de que la direccion no este definida debemos lanzar un error
+        A estas alturas la direccion deberia enter definida porque ya lo validamos antes, pero por las dudas */
+        if( !state.shippingAddress ){
+            throw new Error('No hay direccion de entrega')
+        }
+
+        /* Creamos el cuerpo de la informacion que le vamos a enviar al back. Esta informacion es de tipo IOrder */
+        const body: IOrder = {
+            /* Toda la informacion que queremos mandar esta guardada dentro del estado */
+            orderItems: state.cart.map( p => ({
+                ...p,
+                /* Hay que definir de que el size no va a ser undefined porque sino lanza un error
+                El error se debe a que en el ICart el size es opcional, pero para estas alturas ya esta definido */
+                size: p.size!
+            })),
+            shippingAddress: state.shippingAddress,
+            numberOfItems: state.numberOfItems,
+            subTotal: state.subTotal,
+            tax: state.tax,
+            total: state.total,
+            isPaid: false
+        }
+
+        try {
+            const { data } = await tesloApi.post<IOrder>('orders', body)
+            
+            /* En este punto todo salio bien */
+
+            /* Vaciamos el carrito */
+            dispatch({ type: 'Cart - Order Complete (clean cart)'})
+
+            return {
+                hasError: false,
+                /* Hay que definir que el id no va a ser undefined porque en IOrder lo pusismos como opcional */
+                message: data._id!
+            }
+
+        } catch (error) {
+            if(axios.isAxiosError(error)){
+                return {
+                    hasError: true,
+                    message: error.response?.data.message
+                }
+            }
+
+            return {
+                hasError: true,
+                message: 'Error no controlado, hable con el administrador'
+            }
+        }
+    }
+
     return (
         <CartContext.Provider value={{
             ...state,
@@ -193,7 +238,10 @@ export const CartProvider: FC<Props> = ({ children }) => {
             addProductCart,
             updateCartQuantity,
             removeCartProduct,
-            updateAddress
+            updateAddress,
+
+            // Orders
+            createOrder
         }}>
             {children}
         </CartContext.Provider>

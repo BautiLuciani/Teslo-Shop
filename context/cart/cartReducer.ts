@@ -1,11 +1,11 @@
 /* Podemos usar el snippet 'react-context-reducer' creado por nosotros */
-import { ICartProduct } from '@/interface';
-import { CartState, ShippingAddress } from './';
+import { ICartProduct, IShippingAddress } from '@/interface';
+import { CartState } from './';
 
 type CartActionType =
     | { type: 'Cart - LoadCart from cookies | storage', payload: ICartProduct[] }
-    | { type: 'Cart - LoadAddress from cookies', payload: ShippingAddress }
-    | { type: 'Cart - Update Address', payload: ShippingAddress }
+    | { type: 'Cart - LoadAddress from cookies', payload: IShippingAddress }
+    | { type: 'Cart - Update Address', payload: IShippingAddress }
     | { type: 'Cart - Add Product', payload: ICartProduct[] }
     | { type: 'Cart - Update Quantity Product', payload: ICartProduct }
     | { type: 'Cart - Remove product in cart', payload: ICartProduct }
@@ -18,6 +18,7 @@ type CartActionType =
             total: number
         }
     }
+    | { type: 'Cart - Order Complete (clean cart)'}
 
 export const cartReducer = (state: CartState, action: CartActionType): CartState => {
     switch (action.type) {
@@ -90,6 +91,16 @@ export const cartReducer = (state: CartState, action: CartActionType): CartState
             return {
                 ...state,
                 ...action.payload
+            }
+
+        case 'Cart - Order Complete (clean cart)':
+            return {
+                ...state,
+                cart: [],
+                numberOfItems: 0,
+                subTotal: 0,
+                tax: 0,
+                total: 0
             }
 
         default:
