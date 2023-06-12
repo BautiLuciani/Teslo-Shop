@@ -190,17 +190,21 @@ const LoginPage = () => {
 /* Creamos el SSR para que si el usuario ya esta loggeado no pueda entrar mas a esta pagina */
 export const getServerSideProps: GetServerSideProps = async ({req, query, res}) => {
     
+    let usuario = undefined
     /* Verificamos si hay una session, es decir si esta loggeado */
     const session = await getServerSession(req, res, authOptions)
 
     /* session nos devuelve un [object Object] por eso lo trabajamos de la siguiente manera y extraemos user */
-    const {user} = JSON.parse(JSON.stringify(session))
+    if(session){
+        const {user} = JSON.parse(JSON.stringify(session))
+        usuario = user
+    }
 
     /* Extraemos la query para redireccionar al usuario a la pagina que estaba anteriormente */
     const { p = '/' } = query
 
     /* En caso de que haya una session vamos a redirijir al usuario */
-    if(user){
+    if(usuario){
         return {
             redirect: {
                 /* Pasamos p a string porque puede ser que nos devolviera un arreglo */
