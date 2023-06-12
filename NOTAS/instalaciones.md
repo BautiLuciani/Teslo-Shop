@@ -15,3 +15,4 @@
 14. Axios → yarn add axios
 15. Jose → yarn add jose
 16. NextAuth → yarn add next-auth
+17. Paypal → yarn add @paypal/react-paypal-js

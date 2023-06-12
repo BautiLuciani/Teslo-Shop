@@ -9,13 +9,15 @@ import { authOptions } from '../api/auth/[...nextauth]'
 import { dbOrders } from '@/database'
 import { IOrder } from '@/interface'
 import { countries } from '@/utils'
+import { PayPalButtons } from "@paypal/react-paypal-js";
+
 
 interface Props {
     order: IOrder
 }
 
 const OrderPage: NextPage<Props> = ({ order }) => {
-    
+
     const { shippingAddress } = order
 
     return (
@@ -83,7 +85,28 @@ const OrderPage: NextPage<Props> = ({ order }) => {
                                             color='success'
                                             icon={<CreditScoreOutlined />}
                                         />
-                                        : <h1>Pagar</h1>
+                                        : (
+                                            /* Agregamos el boton para pagar con Paypal
+                                            Todo esto ya viene de la libreria que instalamos */
+                                            <PayPalButtons
+                                                createOrder={(data, actions) => {
+                                                    return actions.order.create({
+                                                        purchase_units: [
+                                                            {
+                                                                amount: {
+                                                                    value: `${order.total}`,
+                                                                },
+                                                            },
+                                                        ],
+                                                    });
+                                                }}
+                                                onApprove={(data, actions) => {
+                                                    return actions.order!.capture().then((details) => {
+                                                        console.log({details});
+                                                    });
+                                                }}
+                                            />
+                                        )
                                 }
                             </Box>
                         </CardContent>
@@ -104,7 +127,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query }
     const session: any = await getServerSession(req, res, authOptions)
 
     /* session nos devuelve un [object Object] por eso lo trabajamos de la siguiente manera y extraemos user */
-    const {user} = JSON.parse(JSON.stringify(session))
+    const { user } = JSON.parse(JSON.stringify(session))
 
     /* En caso de que no haya una session lo redirijimos a la pagina del login. Recordemos que hay que poner
     el id en el query para que despues de loggearse lo vuelva a redirijir a esta misma pagina */

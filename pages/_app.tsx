@@ -5,10 +5,12 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import type { AppProps } from 'next/app'
 import { SWRConfig } from 'swr'
 import { SessionProvider } from 'next-auth/react'
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider>
+      <PayPalScriptProvider options={{ 'client-id': process.env.NEXT_PUBLIC_CLIENT_ID || ''}}>
     {/* SWRConfig es el provider de SWR */}
       <SWRConfig
         value={{
@@ -27,6 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </CartProvider>
         </AuthProvider>
       </SWRConfig>
+      </PayPalScriptProvider>
     </SessionProvider>
   )
 }
