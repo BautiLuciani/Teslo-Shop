@@ -21,6 +21,9 @@ export interface IOrder {
     /* Tenemos que saber si se hizo el pago y en que momento */
     isPaid: boolean
     paidAt?: string
+
+    /* Relacion entre la orden y el gestor de pago */
+    transactionId?: string
 }
 
 /* Definimos los atributos de los productos que van a estar en las ordenes */

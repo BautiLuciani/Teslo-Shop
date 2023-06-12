@@ -202,7 +202,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
         }
 
         try {
-            const { data } = await tesloApi.post<IOrder>('orders', body)
+            const { data } = await tesloApi.post<IOrder>('/orders', body)
             
             /* En este punto todo salio bien */
 

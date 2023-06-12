@@ -10,7 +10,7 @@ type Data =
 | { message: string }
 | IOrder
 
-export default function (req: NextApiRequest, res: NextApiResponse<Data>) {
+export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
     switch ( req.method ) {
         case 'POST':
@@ -72,6 +72,9 @@ const createOrder = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
         const userId = user.id
         /* Creamos una nueva orden y la guardamos en DB */
         const newOrder = new Order({...req.body, isPaid: false, user: userId})
+        /* Redondeamos el total con dos decimales para evitar problemas con paypal o otros gestores de pago
+        Para eso utilizamos el siguiente metodo de Math */
+        newOrder.total = Math.round(newOrder.total * 100)/100
         await newOrder.save()
         return res.status(200).json( newOrder )
 

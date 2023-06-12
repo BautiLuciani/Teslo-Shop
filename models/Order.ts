@@ -34,7 +34,13 @@ const orderSchema = new Schema({
     tax: { type: Number, require: true },
     total: { type: Number, require: true },
     isPaid: { type: Boolean, require: true, default: false },
-    paidAt: { type: String }
+    paidAt: { type: String },
+
+    /* Hay que mantener una relacion entre las ordenes y el gestor de pagos (en este caso paypal)
+    Es por esto que agregamos la siguiente propiedad. En esta propiedad van a ir todos los datos del pago.
+    Tambien debemos agregar la propiedad al IOrder
+    Tambien debemos redondear el total del precio para evitar problemas con paypal, eso lo vamos a hacer en api/orders/index.ts */
+    transactionId: { type: String }
     
 }, {
     /* Usamos el timestamps para que se agreguen los atributos createdAt y updatedAt */
