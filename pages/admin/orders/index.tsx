@@ -57,6 +57,7 @@ const OrdersPage = () => {
     }
 
     const rows = data!.map( order => ({
+        /* Es importante siempre poner el id por mas que no lo hayamos definido en las columnas*/
         id: order._id,
         email: (order.user as IUser).email,
         name: (order.user as IUser).name,
