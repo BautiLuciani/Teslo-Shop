@@ -8,3 +8,5 @@
 5. Envolvemos la app en el Paypal Provider (_app.tsx)
 6. Agregamos el boton para pagar con Paypal (pages/orders/[id].tsx)
 7. Creamos un REST para verificar el pago desde el back (pages/api/orders/pay.ts)
+8. Creamos una interfaz para definir el body de la data que trae paypal (interfaces/paypal.ts)
+9. Creamos una funcion para obtener los datos de la orden pagada (pages/orders/[id].tsx)
