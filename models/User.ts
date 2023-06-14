@@ -12,7 +12,7 @@ const userSchema = new Schema({
         type: String,
         /* Con enum definimos los posibles valores de role */
         enum: {
-            values: ['admin', 'client'],
+            values: ['admin', 'client', 'super-user', 'SEO'],
             message: '{VALUE} no es un rol permitido',
             default: 'client',
             required: true

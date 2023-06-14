@@ -1,8 +1,7 @@
 import { CartList, OrderSummary } from '@/components/cart'
 import { ShopLayout } from '@/components/layouts'
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material'
-import { Box, Button, Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material'
-import NextLink from 'next/link'
+import { Box, Card, CardContent, Chip, CircularProgress, Divider, Grid, Link, Typography } from '@mui/material'
 import { GetServerSideProps, NextPage } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../api/auth/[...nextauth]'
@@ -10,7 +9,10 @@ import { dbOrders } from '@/database'
 import { IOrder } from '@/interface'
 import { countries } from '@/utils'
 import { PayPalButtons } from "@paypal/react-paypal-js";
-
+import { OrderResponseBody } from '@paypal/paypal-js'
+import { tesloApi } from '@/api'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
 
 interface Props {
     order: IOrder
@@ -18,7 +20,39 @@ interface Props {
 
 const OrderPage: NextPage<Props> = ({ order }) => {
 
+    /* Vamos a usar el useRouter para recargar la pagina al hacer el pago */
+    const router = useRouter()
+
+    /* Este estado sirve para saber si el pago se esta haciendo o no, y con eso mostrar el logo de carga */
+    const [isPaying, setIsPaying] = useState(false)
+
     const { shippingAddress } = order
+
+    /* Creamos una funcion para obtener los datos de la orden pagada */
+    /* Para la interfaz debemos installar yarn add @paypal/react-paypal-js @paypal/paypal-js */
+    const onOrderDetails = async (details: OrderResponseBody) => {
+        /* Verificamos que el estado del pago sea 'COMPLETED', caso contrario nos retiramos de la funcion */
+        if (details.status !== 'COMPLETED') {
+            return console.log('No hay pago de paypal');
+        }
+
+        setIsPaying(true)
+
+        /* En caso de que el estado del pago sea 'COMPLETED' vamos a usar la funcion que creamos anteriormente por parte del back */
+        try {
+            const { data } = await tesloApi.post('/orders/pay', {
+                transactionId: details.id,
+                orderId: order._id
+            })
+
+            /* Aca no hay que setear isPaying en false ya que al recargar la pagina va a volver a su estado inicial que es false */
+            router.reload()
+
+        } catch (error) {
+            setIsPaying(false)
+            console.log(error);
+        }
+    }
 
     return (
         <ShopLayout title='Resumen de orden' pageDescription='Resumen de la orden'>
@@ -75,39 +109,48 @@ const OrderPage: NextPage<Props> = ({ order }) => {
                             />
 
                             <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
-                                {/* Todo */}
-                                {
-                                    order.isPaid
-                                        ? <Chip
-                                            sx={{ mt: 2 }}
-                                            label='Orden ya fue pagada'
-                                            variant='outlined'
-                                            color='success'
-                                            icon={<CreditScoreOutlined />}
-                                        />
-                                        : (
-                                            /* Agregamos el boton para pagar con Paypal
-                                            Todo esto ya viene de la libreria que instalamos */
-                                            <PayPalButtons
-                                                createOrder={(data, actions) => {
-                                                    return actions.order.create({
-                                                        purchase_units: [
-                                                            {
-                                                                amount: {
-                                                                    value: `${order.total}`,
-                                                                },
-                                                            },
-                                                        ],
-                                                    });
-                                                }}
-                                                onApprove={(data, actions) => {
-                                                    return actions.order!.capture().then((details) => {
-                                                        console.log({details});
-                                                    });
-                                                }}
+                                {/* Mostramos el logo de carga mientras se paga la orden */}
+                                <Box
+                                    sx={{ display: isPaying ? 'flex' : 'none' }}
+                                    justifyContent='center'
+                                >
+                                    <CircularProgress />
+                                </Box>
+
+                                <Box flexDirection='column' sx={{ display: isPaying ? 'none' : 'flex', flex: 1 }}>
+                                    {
+                                        order.isPaid
+                                            ? <Chip
+                                                sx={{ mt: 2 }}
+                                                label='Orden ya fue pagada'
+                                                variant='outlined'
+                                                color='success'
+                                                icon={<CreditScoreOutlined />}
                                             />
-                                        )
-                                }
+                                            : (
+                                                /* Agregamos el boton para pagar con Paypal
+                                                Todo esto ya viene de la libreria que instalamos */
+                                                <PayPalButtons
+                                                    createOrder={(data, actions) => {
+                                                        return actions.order.create({
+                                                            purchase_units: [
+                                                                {
+                                                                    amount: {
+                                                                        value: `${order.total}`,
+                                                                    },
+                                                                },
+                                                            ],
+                                                        });
+                                                    }}
+                                                    onApprove={(data, actions) => {
+                                                        return actions.order!.capture().then((details) => {
+                                                            onOrderDetails(details)
+                                                        });
+                                                    }}
+                                                />
+                                            )
+                                    }
+                                </Box>
                             </Box>
                         </CardContent>
                     </Card>

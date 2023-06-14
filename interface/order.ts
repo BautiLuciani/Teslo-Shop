@@ -24,6 +24,10 @@ export interface IOrder {
 
     /* Relacion entre la orden y el gestor de pago */
     transactionId?: string
+
+    /* Fecha de creacion */
+    createdAt?: string
+    updatedAt?: string
 }
 
 /* Definimos los atributos de los productos que van a estar en las ordenes */
