@@ -35,7 +35,7 @@ const OrderPage: NextPage<Props> = ({ order }) => {
         if (details.status !== 'COMPLETED') {
             return console.log('No hay pago de paypal');
         }
-
+        
         setIsPaying(true)
 
         /* En caso de que el estado del pago sea 'COMPLETED' vamos a usar la funcion que creamos anteriormente por parte del back */

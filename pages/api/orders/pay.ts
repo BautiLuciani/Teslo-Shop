@@ -24,12 +24,12 @@ Quizas es dificil de entender pero todo se encuentra en la documentacion de Payp
 Anteriormente tuvimos que haber definido las variables de entorno 'PAYPAL_OAUTH_URL' y 'PAYPAL_ORDERS_URL' en el archivo '.env'
 Ambas variables tambien se encuentran en la documentacion de Paypal */
 /* COMPAÑERO */
-const getPayPalBearerToken = async (): Promise<string | null> => {
+/*const getPayPalBearerToken = async (): Promise<string | null> => {
 
     try {
-        const { PAYPAL_CLIENT, PAYPAL_SECRET } = process.env
+        const { NEXT_PUBLIC_PAYPAL_CLIENT_ID, PAYPAL_SECRET } = process.env
 
-        const encodedToken = Buffer.from(PAYPAL_CLIENT + ":" + PAYPAL_SECRET).toString('base64')
+        const encodedToken = Buffer.from(NEXT_PUBLIC_PAYPAL_CLIENT_ID + ":" + PAYPAL_SECRET).toString('base64')
 
         const response = await fetch(process.env.PAYPAL_OAUTH_URL || '', {
             method: 'POST',
@@ -53,16 +53,17 @@ const getPayPalBearerToken = async (): Promise<string | null> => {
 
         return null
     }
-}
+}*/
 
 /* PROFE */
-/* const getPaypalBearerToken = async():Promise<string|null> => {
+const getPaypalBearerToken = async():Promise<string|null> => {
     
     const PAYPAL_CLIENT = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
     const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 
     const base64Token = Buffer.from(`${ PAYPAL_CLIENT }:${ PAYPAL_SECRET }`, 'utf-8').toString('base64');
     const body = new URLSearchParams('grant_type=client_credentials');
+
 
     try {
         
@@ -85,7 +86,9 @@ const getPayPalBearerToken = async (): Promise<string | null> => {
 
         return null;
     }
-}*/
+
+
+}
 
 const payOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
@@ -93,7 +96,7 @@ const payOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     /* TODO: validar mongoId */
 
     /* Llamamos a la funcion para obtener el access_token */
-    const paypalBearerToken = await getPayPalBearerToken()
+    const paypalBearerToken = await getPaypalBearerToken()
 
     /* En caso de no poder obtener el token mostramos un mensaje de error */
     if (!paypalBearerToken) {
@@ -121,7 +124,7 @@ const payOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     /* Verificamos de que exista una orden con el id que extramos del body */
     await db.connect()
-    const dbOrder = await Order.findById({ orderId })
+    const dbOrder = await Order.findById(orderId)
 
     /* En caso de que no exista una orden con ese id retornamos un error 400 */
     if( !dbOrder ){

@@ -10,25 +10,25 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider>
-      <PayPalScriptProvider options={{ 'client-id': process.env.NEXT_PUBLIC_CLIENT_ID || ''}}>
-    {/* SWRConfig es el provider de SWR */}
-      <SWRConfig
-        value={{
-          /* Definimos el fetcher globalmente, este fetcher esta en la documentacion oficial */
-          fetcher: (resource, init) => fetch(resource, init).then(res => res.json())
-        }}
-      >
-        <AuthProvider>
-          <CartProvider>
-            <UiProvider>
-              <ThemeProvider theme={lightTheme}>
-                <CssBaseline />
-                <Component {...pageProps} />
-              </ThemeProvider>
-            </UiProvider>
-          </CartProvider>
-        </AuthProvider>
-      </SWRConfig>
+      <PayPalScriptProvider options={{ 'clientId': process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '' }}>
+        {/* SWRConfig es el provider de SWR */}
+        <SWRConfig
+          value={{
+            /* Definimos el fetcher globalmente, este fetcher esta en la documentacion oficial */
+            fetcher: (resource, init) => fetch(resource, init).then(res => res.json())
+          }}
+        >
+          <AuthProvider>
+            <CartProvider>
+              <UiProvider>
+                <ThemeProvider theme={lightTheme}>
+                  <CssBaseline />
+                  <Component {...pageProps} />
+                </ThemeProvider>
+              </UiProvider>
+            </CartProvider>
+          </AuthProvider>
+        </SWRConfig>
       </PayPalScriptProvider>
     </SessionProvider>
   )
