@@ -4,7 +4,7 @@ import mongoose, {Schema, model, Model} from 'mongoose'
 /* Definimos que atributos va a incluir el producto, para eso usamos el Schema
 A cada atributo hay que definirle el tipo y si es requerido (opcional) */
 const productSchema = new Schema({
-    description: {type: String, require: true},
+    description: {type: String, require: true, default: ''},
     /* Como es mas de una imagen debemos ponerlo dentro de un arreglo */
     images: [{type: String}],
     inStock: {type: Number, require: true, default: 0},
@@ -24,21 +24,23 @@ const productSchema = new Schema({
     Vamos a mostrar productos en base a los tags y los titulos que el usuario estuvo buscando
     Como son varios tags hay que ponerlo dentro de un arreglo */
     tags: [{type: String}],
-    title: {type: String, require: true},
+    title: {type: String, require: true, default: ''},
     /* A diferencia de los sizes, el type solo puede ser uno por eso no esta dentro de un arreglo */
     type: {
         type: String,
         enum: {
             values: ['shirts','pants','hoodies','hats'],
             message: '{VALUE} no es un tipo valido'
-        }
+        },
+        default: 'shirts'
     },
     gender: {
         type: String,
         enum: {
             values: ['men','women','kid','unisex'],
             message: '{VALUE} no es un genero valido'
-        }
+        },
+        default: 'men'
     }
 }, {
     /* Con esta propiedad mongoose nos ayuda a acceder facilmente a la fecha de creacion y la fecha de actualizacion */

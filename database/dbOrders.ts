@@ -20,6 +20,14 @@ export const getOrderById = async( id: string ):Promise<IOrder | null>=> {
         return null
     }
 
+    /* TODO: un procesamiento de las imagenes cuando las subamos al server */
+    order.orderItems = order.orderItems.map(product => {
+        product.image = product.image.includes('http')
+            ? product.image
+            : `${process.env.NEXTAUTH_URL}/products/${product.image}`;
+        return product;
+    });
+
     /* Si todo sale bien retornamos la orden */
     return JSON.parse( JSON.stringify(order) )
 }

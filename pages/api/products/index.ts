@@ -41,7 +41,16 @@ const getProducts = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
     const products = await Product.find(genero).select('title images price inStock slug -_id').lean()
     await db.disconnect()
 
+    /* TODO: un procesamiento de las imagenes cuando las subamos al server */
+    const updatedProducts = products.map( product => {
+        product.images = product.images.map( img => {
+            return img.includes('http') ? img : `${process.env.HOST_NAME}/products/${img}`
+        })
+        
+        return product
+    })
+
     /* Si no especificamos el estado por defecto va a ser 200 */
     /* Debemos especificar el tipo de products en el type Data, en este caso es de tipo IProduct */
-    return res.status(200).json( products )
+    return res.status(200).json( updatedProducts )
 }

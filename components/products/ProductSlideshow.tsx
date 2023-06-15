@@ -16,12 +16,11 @@ const ProductSlideshow: FC<Props> = ({images}) => {
     >
         {
             images.map(image => {
-                const url = `/products/${image}`
                 return (
                     /* Hay que poner el className de la siguiente manera ya que sino lanza error por el guion bajo */
                     <div className={styles['ease-slide']} key={image}>
                         <div style={{
-                            backgroundImage: `url(${url})`,
+                            backgroundImage: `url(${image})`,
                             backgroundSize: 'cover'
                         }}
                         >

@@ -11,6 +11,15 @@ export const getProductBySlug = async(slug: string): Promise<IProduct | null>=> 
 
     if(!product) return null
 
+    /* TODO: un procesamiento de las imagenes cuando las subamos al server */
+    /* Si la url de la imagen incluye 'http' significa que la subimos a cloudinary, entonces la devolvemos tal cual esta
+    En caso de que no lo incluya, significa que no esta en cloudinary y hay que agregarle lo faltante a la url
+    Pero lo faltante puede cambiar en base a donde esta subida la pagina, es decir no es lo mismo la url si estamos en el localhost que si la pagina esta en Versel
+    Por eso creamos una variable de entorno que nos facilite esto */
+    product.images = product.images.map( img => {
+        return img.includes('http') ? img : `${process.env.HOST_NAME}/products/${img}`
+    })
+
     /* Aca forzamos al objeto para que sea serealizado a un string
     Es la manera mas sencilla para evitar errores */
     /* Esto por lo general lo hacemos cuando dentro del objeto que vamos a retornar esta el id de Mongo,
@@ -42,7 +51,16 @@ export const getProductByTerm = async( term: string ): Promise<IProduct[]>=> {
     const products = await Product.find({$text: {$search: term}}).select('title images price inStock slug -_id').lean()
     await db.disconnect()
 
-    return products
+    /* TODO: un procesamiento de las imagenes cuando las subamos al server */
+    const updatedProducts = products.map( product => {
+        product.images = product.images.map( img => {
+            return img.includes('http') ? img : `${process.env.HOST_NAME}/products/${img}`
+        })
+        
+        return product
+    })
+
+    return updatedProducts
 }
 
 export const getAllProducts = async(): Promise<IProduct[]>=> {
@@ -50,5 +68,14 @@ export const getAllProducts = async(): Promise<IProduct[]>=> {
     const products = await Product.find().lean()
     await db.disconnect()
 
-    return JSON.parse( JSON.stringify(products) )
+    /* TODO: un procesamiento de las imagenes cuando las subamos al server */
+    const updatedProducts = products.map( product => {
+        product.images = product.images.map( img => {
+            return img.includes('http') ? img : `${process.env.HOST_NAME}/products/${img}`
+        })
+        
+        return product
+    })
+
+    return JSON.parse( JSON.stringify(updatedProducts) )
 }

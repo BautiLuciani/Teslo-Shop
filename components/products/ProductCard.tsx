@@ -23,8 +23,8 @@ const ProductCard: FC<Props> = ({ product }) => {
     /* Con esta variable mostramos la imagen en base a si esta el mouse por encima o no */
     const productImage = useMemo(() => {
         return isHovered
-            ? `/products/${product.images[1]}`
-            : `/products/${product.images[0]}`
+            ? product.images[1]
+            : product.images[0]
     }, [isHovered, product.images])
 
     return (

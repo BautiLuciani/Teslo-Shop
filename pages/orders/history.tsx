@@ -83,13 +83,19 @@ const HistoryPage: NextPage<Props> = ({ orders }) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     
+    let usuarioFinal = undefined
     /* Obtenemos la session del usuario */
     const session: any = await getServerSession(req, res, authOptions)
     /* session nos devuelve un [object Object] por eso lo trabajamos de la siguiente manera y extraemos user */
-    const {user} = JSON.parse(JSON.stringify(session))
+    const usuario = JSON.parse(JSON.stringify(session))
+
+    if(usuario !== null){
+        const {user} = usuario
+        usuarioFinal = user
+    }
 
     /* En caso de que no exista un usuario lo redirijimos a la pagina de login */
-    if(!user){
+    if(!usuarioFinal){
         return {
             redirect: {
                 destination: '/auth/login?p=/orders/history',
@@ -100,7 +106,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
     /* Obtenemos todas las ordenes que coincidan con el id del usuario
     Para eso tuvimos que haber creado la funcion anteriormente en database */
-    const orders = await dbOrders.getOrderByUsers( user.id )
+    const orders = await dbOrders.getOrderByUsers( usuarioFinal.id )
 
     return {
         props: {
