@@ -78,7 +78,7 @@ const SideMenu = () => {
           {
             isLoggedIn &&
             <>
-              <ListItemButton>
+              <ListItemButton onClick={() => navigateTo('/user/perfil')}>
                 <ListItemIcon>
                   <AccountCircleOutlined />
                 </ListItemIcon>

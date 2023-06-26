@@ -6,7 +6,7 @@ import { Box, Button, Chip, Divider, Grid, Link, TextField, Typography } from '@
 import { getProviders, signIn } from 'next-auth/react';
 import NextLink from 'next/link'
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { GetServerSideProps } from 'next'
 import { getServerSession } from 'next-auth';
@@ -17,7 +17,12 @@ type FormData = {
     password: string
 }
 
-const LoginPage = () => {
+interface Props {
+    query?: any,
+    p?: string
+}
+
+const LoginPage: FC<Props> = ({query, p}) => {
 
     /* Usamos el hook useForm de react-hook-form para tener un mejor manejo de nuestro formulario */
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
@@ -38,6 +43,14 @@ const LoginPage = () => {
       getProviders().then( prov => {
         setProviders( prov )
       })
+    }, [])
+
+    /* Usamos el useEffect para controlar el error en el login en caso de que los datos ingresados sean incorrectos */
+    useEffect(() => {
+      if(query?.error === 'CredentialsSignin'){
+        setShowError(true)
+        router.replace(`?p=${p}`)
+      }
     }, [])
 
     /* Creamos la funcion la cual se va a ejecutar una vez que los campos esten validados y el usuario quiera loggearse */
@@ -216,7 +229,8 @@ export const getServerSideProps: GetServerSideProps = async ({req, query, res}) 
 
     return {
         props: {
-            
+            query,
+            p
         }
     }
 }
